@@ -1,41 +1,58 @@
----
-layout: table_wrappers
----
-
 <!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
 
-<html lang="{{ site.lang | default: 'en-US' }}">
-{% include head.html %}
-<body>
-  <a class="skip-to-main" href="#main-content">Skip to main content</a>
-  {% include icons/icons.html %}
-  {% include components/sidebar.html %}
-  <div class="main" id="top">
-    {% include components/header.html %}
-    <div id="main-content-wrap" class="main-content-wrap">
-      {% include components/breadcrumbs.html %}
-      <div id="main-content" class="main-content">
-        <main>
-          {% if site.heading_anchors != false %}
-            {% include vendor/anchor_headings.html html=content beforeHeading="true" anchorBody="<svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><use xlink:href=\"#svg-link\"></use></svg>" anchorClass="anchor-heading" anchorAttrs="aria-labelledby=\"%html_id%\"" %}
-          {% else %}
-            {{ content }}
-          {% endif %}
+  <head>
+    <!-- General meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-          {% if page.has_children == true and page.has_toc != false %}
-            {% include components/children_nav.html %}
-          {% endif %}
-        </main>
-        {% include components/footer.html %}
-      </div>
-    </div>
-    {% if site.search_enabled != false %}
-      {% include components/search_footer.html %}
+    {% if page.indexing == false %}
+      <meta name="robots" content="noindex">
     {% endif %}
-  </div>
 
-  {% if site.mermaid %}
-    {% include components/mermaid.html %}
-  {% endif %}
-</body>
+    {% if page.collectionpage %}
+      {% seo title=false %}
+
+      {% assign collectiondata = site.collections | where: "label", page.collectionpage | first %}
+      <title>{{ collectiondata.title }} - {{ site.title }}</title>
+      <meta property="og:title" content="{{ collectiondata.title }}">
+      <meta name="description" content="{{ collectiondata.description }}">
+      <meta property="og:description" content="{{ collectiondata.description }}">
+    {% else %}
+      {% seo %}
+    {% endif %}
+    {% if site.fonts.preconnect_urls %}
+      {% for url in site.fonts.preconnect_urls %}
+        <link rel="preconnect" href="{{ url }}" crossorigin />
+      {% endfor %}
+    {% endif %}
+
+    <link rel="manifest" href="{{ "/manifest.json" | relative_url }}">
+    <meta name="theme-color" content="{{ site.manifest.theme_color | default: '#242e2b' }}"/>
+
+    {% if site.css_inline == true %}
+      {% include site-styles.html %}
+    {% else %}
+      <link rel="stylesheet" href="{{ "/assets/styles.css" | relative_url }}">
+    {% endif %}
+
+    {% if site.favicons or site.avatarurl %}{% include site-favicons.html %}{% endif %}
+
+    {% if site.google_analytics %}{% include site-analytics.html %}{% endif %}
+
+    {% include site-fonts.html %}
+
+    {% include site-before-start.html %}
+  </head>
+
+  <body class="layout-{{ page.layout }}{% if page.title %}  {{ page.title | slugify }}{% endif %}">
+    {% include site-icons.svg %}
+
+    {{ content }}
+
+    {% if site.service_worker != false %}{% include site-sw.html %}{% endif %}
+
+    {% include site-before-end.html %}
+  </body>
+
 </html>
